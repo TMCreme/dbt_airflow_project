@@ -40,16 +40,22 @@ This project simulates a data pipeline. Data is crawled from an online shop's we
 21. Go to the Snowflake console and create a table in the database. Note that the data in the csv files comes as a string/varchar no matter the format in which you saved data in the file, hence the columns should all be varchar types like below. 
     `CREATE TABLE <table_name> (date varchar(100), category varchar(100), name varchar(350),price varchar(100), percentage varchar(100), currency varchar(50)`
 22. Kindly take note of the table which was just created because it will be used as the table in the S3ToSnowFlakeOperator task. 
-23. 
-
-
-Create a table 
-Create a dag file to load the 
-
-
-
+23. Create the dbt project with the command `dbt init airflowproj`. dbt init is the command and airflowproj is my project name. This will do a couple of things, like create your dbt profiles in your user's home like `~/.dbt/profiles.yml` and create a project folder in the location from which the dbt init was run. 
+24. Check the dbt_project.yml file to ensure the values are accurate. I added a new directory as created under models to reference a table. The default is a view
+25. The skeleton project comes with some predefined code. DBT is for the transformation in ETL/ELT so we will create a dag that will contain task to run the dbt transformation. 
+26. create a directory under the models folder in the dbt project and create the schema.yml file, product_category.sql and product_detail.sql files. 
+27. Create a dag like the new_dag.py file in this project and check the values defined in  to match. 
+28. A brif about the tasks in the dag. 
+    * list_keys - uses the S3ListOperator to retrieve the keys (filenames) from AWS S3. 
+    * pull_function - retrieves the returned value from list_keys which airflow stores 
+    * get_keys - saves the keys in a list accessible to other functions in the dag 
+    * copy_into_table reads data from the files in the snowflake stage and saves it in the table we created above which should be referenced in the function
+    * dbt_operator - as the name suggests, runs the dbt task to handle transformation of data types and saves in a table/view in the database.
+28. Visit the Airflow UI and run the dag that has been created. This can be scheduled to run anytime of the day or how frequent you want. That is the point of Airflow. 
 
 
 
 ## Next
 * Deployment with Docker
+The project will be deployed to a Production environment with docker. 
+

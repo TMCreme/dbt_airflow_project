@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: allproducts
+    description: "Product information data transformation in DBT"
+    database: testdb
+    schema: public 
+
+    tables: 
+      - name: jumia_products 
+        description: "Raw product from warehouse"
