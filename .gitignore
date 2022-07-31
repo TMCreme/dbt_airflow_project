@@ -1,0 +1,4 @@
+projenv
+config.ini
+text_scripts.py
+dags/__pycache__
