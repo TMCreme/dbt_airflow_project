@@ -1,0 +1,29 @@
+USE ROLE SECURITYADMIN;
+
+CREATE OR REPLACE ROLE dbt_airflow_role COMMENT='dbt_airflow_role';
+GRANT ROLE dbt_airflow_role TO ROLE SYSADMIN;
+
+CREATE OR REPLACE USER dbt_airflow_user PASSWORD='<password>'
+    DEFAULT_ROLE=dbt_airflow_role
+    DEFAULT_WAREHOUSE=compute_wh
+    COMMENT='DBT USER';
+
+GRANT ROLE dbt_airflow_role TO USER dbt_airflow_user;
+
+USE ROLE ACCOUNTADMIN;
+
+GRANT CREATE DATABASE ON ACCOUNT TO ROLE dbt_airflow_role;
+
+
+USE ROLE SYSADMIN;
+
+CREATE OR REPLACE WAREHOUSE dbt_airflow_wh
+    WITH WAREHOUSE_SIZE='XSMALL'
+    AUTO_SUSPEND=120
+    AUTO_RESUME=true
+    INITIALLY_SUSPENDED = TRUE;
+    
+GRANT ALL ON WAREHOUSE dbt_airflow_wh TO ROLE dbt_airflow_role;
+
+
+CREATE OR REPLACE DATABASE DBT_AIRFLOW_DB;
