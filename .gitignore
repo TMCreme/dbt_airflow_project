@@ -9,3 +9,4 @@ airflowproj/dbt_packages/
 airflowproj/logs/
 airflowproj/.gitignore
 snowflake_table.py
+*.csv
