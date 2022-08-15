@@ -8,6 +8,7 @@ with product_detail as (
         currency
     FROM
         {{ source("allproducts", "jumia_products") }}
+    WHERE category!='category'
 )
 
 SELECT * 
