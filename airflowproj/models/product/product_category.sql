@@ -3,6 +3,7 @@ with product_category as (
         category 
     FROM 
         {{ source("allproducts", "jumia_products") }}
+    WHERE category!='category'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY category ORDER BY category) = 1
 )
 
