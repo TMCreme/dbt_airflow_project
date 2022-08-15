@@ -16,7 +16,7 @@ This project simulates a data pipeline. Data is crawled from an online shop's we
 
 
 ## Steps
-1. Setup the crawler to crawl price data from an online shop. I used jumia's website(https://www.jumia.com.gh) for this project. Run data_transform.py file to convert the json files into CSV
+1. The crawler.py is to crawl price data from an online shop. I used jumia's website(https://www.jumia.com.gh) for this project. The data is stored in CSV files and uploaded to S3
 2. Create a Snowflake account if you do not have one. A trial period is available and should enable you complete the project
 3. Run the queries in the snowflake_queries.sql script to create a custom role, user, warehouse and database for this project 
 4. [Optional] Install PostgreSQL on your development machine which I used to run Airflow. Airflow comes with default SQLite but can also be used on Redshift, Snowflake, PostgreSQL. 
