@@ -6,6 +6,7 @@ import datetime
 import csv
 import boto3
 from botocore.exceptions import NoCredentialsError
+from airflow.models import Variable
 
 """
 This web scraping logic howbeit general is specifically
@@ -51,7 +52,7 @@ def category_data(soup):
     data_str = {}
     bUrl = "https://www.jumia.com.gh"
     for item in soup.find_all("a", class_="itm"):
-        if item.has_attr('href'):
+        if item.has_attr("href"):
             if item["href"][:4] != "http":
                 data_str[item.get_text()] = bUrl + item["href"]
             else:
@@ -84,17 +85,19 @@ def clean_product_data(product):
         for item in v:
             price_ind = item.index("GH₵")
             type_data = item[:price_ind].split("-")[-1]
-            name_data = item[:item.index(type_data)]
-            currency = item[price_ind:price_ind+3]
-            price_data = item[price_ind+4:price_ind+9]
+            name_data = item[: item.index(type_data)]
+            currency = item[price_ind : price_ind + 3]
+            price_data = item[price_ind + 4 : price_ind + 9]
             percent_data = item[-3:]
-            product_json[k].append({
-                            "name": name_data,
-                            "type": type_data,
-                            "price": price_data,
-                            "percent": percent_data,
-                            "currency": currency
-                        })
+            product_json[k].append(
+                {
+                    "name": name_data,
+                    "type": type_data,
+                    "price": price_data,
+                    "percent": percent_data,
+                    "currency": currency,
+                }
+            )
     print(product_json)
     write_to_csv(product_json)
 
@@ -104,7 +107,7 @@ def write_to_csv(jsondata):
     filename = datetime.datetime.now().strftime("%Y%m%d%H")
     keys = ["date", "category", "name", "price", "percent", "currency"]
     try:
-        with open(filename+".csv", 'w', newline='') as output_file:
+        with open("transforms/" + filename + ".csv", "w", newline="") as output_file:
             dict_writer = csv.writer(output_file)
             dict_writer.writerow(keys)
             for k, v in jsondata.items():
@@ -112,13 +115,18 @@ def write_to_csv(jsondata):
                 for items in v:
                     items["price"] = float(items["price"].replace(",", ""))
                     items["percent"] = float(items["percent"].strip("%"))
-                    item_date = datetime.datetime.strptime(filename,
-                                                        "%Y%m%d%H")
-                    dict_writer.writerow([item_date, k,
-                            (items["name"]+items["type"]).replace(",", "-"),
-                            items["price"], items["percent"],
-                            items["currency"]])
-        upload_to_aws(filename+".csv", filename+".csv")
+                    item_date = datetime.datetime.strptime(filename, "%Y%m%d%H")
+                    dict_writer.writerow(
+                        [
+                            item_date,
+                            k,
+                            (items["name"] + items["type"]).replace(",", "-"),
+                            items["price"],
+                            items["percent"],
+                            items["currency"],
+                        ]
+                    )
+        upload_to_aws("transforms/" + filename + ".csv", filename + ".csv")
     except JSONDecodeError as jse:
         print(jse)
 
@@ -127,11 +135,13 @@ def write_to_csv(jsondata):
 def upload_to_aws(local_file, s3_file):
     access_key = read_creds("AWS_CREDENTIALS", "aws_access_key")
     secret_key = read_creds("AWS_CREDENTIALS", "aws_secret_key")
-    s3 = boto3.resource('s3', aws_access_key_id=access_key,
-                        aws_secret_access_key=secret_key)
+    s3 = boto3.resource(
+        "s3", aws_access_key_id=access_key, aws_secret_access_key=secret_key
+    )
     bucket = "transforme-products"
     try:
         s3.meta.client.upload_file(local_file, bucket, s3_file)
+        Variable.set("latest_uploaded_file", local_file[11:])
     except FileNotFoundError:
         print("The file was not found")
         return None
