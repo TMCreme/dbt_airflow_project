@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: allproducts
     description: "Product information data transformation in DBT"
-    database: testdb
+    database: dbt_airflow_db
     schema: public 
 
     tables: 
@@ -29,7 +29,7 @@ sources:
           tests: 
             - not_null
             - accepted_values:
-                values: ["GH¢"]
+                values: ["GHS"]
 
         - name: price
           description: "Price of the product"

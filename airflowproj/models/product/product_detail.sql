@@ -1,10 +1,10 @@
 with product_detail as (
     SELECT 
-        try_cast(date as DATETIME) as crawldate,
+        date,
         category,
         name,
-        try_cast(price as FLOAT) as price,
-        try_cast(percentage as FLOAT)  as discount,
+        CAST(price AS double precision) as price,
+        CAST(percent AS double precision)  as discount,
         currency
     FROM
         {{ source("allproducts", "jumia_products") }}
