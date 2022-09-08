@@ -1,15 +1,16 @@
 import requests
 from requests import JSONDecodeError
-from bs4 import BeautifulSoup 
-from datetime import timedelta, datetime 
-from airflow import DAG 
+from bs4 import BeautifulSoup
+from datetime import timedelta, datetime
+from airflow import DAG
 import csv
 from airflow.models import Variable
-from airflow.utils.dates import days_ago 
+from airflow.utils.dates import days_ago
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
-
+from airflow.providers.amazon.aws.transfers.local_to_s3 import (
+    LocalFilesystemToS3Operator,
+)
 
 
 # getting the raw data from the website
@@ -109,52 +110,7 @@ def write_to_csv(jsondata):
                             items["currency"],
                         ]
                     )
-        Variable.set("local_file_full_path", "transforms/"+filename+".csv")
-        Variable.set("latest_uploaded_file", filename+".csv")
+        Variable.set("local_file_full_path", "transforms/" + filename + ".csv")
+        Variable.set("latest_uploaded_file", filename + ".csv")
     except JSONDecodeError as jse:
         print(jse)
-
-
-
-# Define the default arguments for the DAG 
-# default_args = {
-#     "owner" : "airflow",
-#     "depends_on_past" : False,
-#     "start_date" : days_ago(2),
-#     "email" : ["admin"],
-#     "email_on_failure" : False,
-#     "email_on_retry" : False,
-#     "retries" : 0,
-#     "retry_delay" : timedelta(minutes=5)
-# }
-
-
-# This is a simple dag definition for the purpose of this mini project 
-# dag = DAG(
-#     "crawler_dag",
-#     default_args=default_args,
-#     description="Crawling products from a website",
-#     schedule_interval=timedelta(days=2)
-# )
-
-# crawling_data = PythonOperator(
-#     task_id="crawl_data_from_online_shop",
-#     python_callable=category_data,
-#     dag=dag,
-# )
-
-
-# copy_to_s3 = LocalFilesystemToS3Operator(
-#     task_id="copy_file_to_s3",
-#     filename=Variable.get("local_file_full_path"),
-#     aws_conn_id="s3_conn",
-#     dest_bucket=Variable.get("destination_bucket_name"),
-#     dest_key=Variable.get("latest_uploaded_file"),
-#     dag=dag
-# )
-
-
-# crawling_data >> copy_to_s3
-
-
-

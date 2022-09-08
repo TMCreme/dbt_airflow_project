@@ -69,7 +69,7 @@ copy_local_to_postgres = PythonOperator(
 
 dbt_operator = BashOperator(
     task_id="dbt_task_in_airflow",
-    bash_command="cd /home/tonny/dteng/airflowproj && dbt run",
+    bash_command="cd /opt/airflow/dbtproj && dbt deps && dbt run --profiles-dir .",
     dag=dag,
 )
 

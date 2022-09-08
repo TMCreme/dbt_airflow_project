@@ -1,0 +1,11 @@
+outputs:
+    dev:
+      database: do_billbox
+      password: xxxxxx
+      schema: public
+      threads: 5
+      type: postgres
+      user: postgres
+      host: host.docker.internal
+      port: 5432
+  target: dev
