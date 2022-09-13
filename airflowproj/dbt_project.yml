@@ -34,7 +34,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   airflowproj:
     # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
-    product:
+    billbox:
       +materialized: table

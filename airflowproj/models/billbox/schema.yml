@@ -1,0 +1,106 @@
+version: 2
+
+sources:
+  - name: billbox
+    description: "Transformation for the table "
+    database: do_billbox
+    schema: public 
+
+    tables: 
+      - name: billbox_accounts 
+        description: "Billbox accounts data"
+
+        columns: 
+        - name: _id 
+        
+        - name: _class 
+        
+        - name: name 
+        
+        - name: description 
+        
+        - name: logoUrl 
+        
+        - name: isLocked 
+        
+        - name: isFrozen 
+        
+        - name: isEnabled 
+        
+        - name: isBlocked 
+        
+        - name: isActivated 
+        
+        - name: isSuspended 
+        
+        - name: deleted 
+        
+        - name: hasBranches 
+        
+        - name: accountType 
+        
+        - name: accountClass 
+        
+        - name: accountStatus 
+        
+        - name: summaryGL 
+        
+        - name: dateCreated 
+        
+        - name: accountCurrency 
+        
+        - name: exchangeRate 
+        
+        - name: autorunEod 
+        
+        - name: prePersistTransactions 
+        
+        - name: trackDenominations 
+        
+        - name: prepaidAccount 
+        
+        - name: balance 
+        
+        - name: receiptImageSupported 
+        
+        - name: countryCode 
+        
+        - name: autoReversalSupported 
+        
+        - name: unsettledFunds 
+        
+        - name: notifyOnPayment 
+        
+        - name: chargeByChannel 
+        
+        - name: autoClearCheques 
+        
+        - name: sortCode 
+        
+        - name: ownedBy 
+        
+        - name: financeEmailContact 
+        
+        - name: dataFormatters 
+        
+        - name: callbackServiceCode 
+        
+        - name: defaultReferenceField 
+        
+        - name: reversalUser 
+        
+        - name: orderTTL 
+        
+        - name: webCheckoutUrl 
+        
+        - name: callbackUser 
+        
+        - name: themeFile 
+        
+        - name: dateModified 
+        
+        - name: createdBy 
+        
+        - name: parentId 
+ 
+ 

@@ -10,3 +10,5 @@ airflowproj/logs/
 airflowproj/.gitignore
 snowflake_table.py
 *.csv
+test_script.py
+create_script.sql

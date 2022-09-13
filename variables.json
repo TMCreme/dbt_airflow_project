@@ -1,0 +1,9 @@
+{
+    "DO_AWS_CREDNTIALS_access_token": "xxxxxxxxxxxx",
+    "DO_AWS_CREDNTIALS_secret_token": "xxxxxxxxxxxxxx",
+    "destination_bucket_name": "transforme-products",
+    "do_download_file": "/tmp/account_20220713.csv",
+    "latest_uploaded_file": "2022090619.csv",
+    "local_file_full_path": "2022090619.csv",
+    "table_create_sql": "CREATE TABLE IF NOT EXISTS do_db.public.raw_accounts ()"
+}
