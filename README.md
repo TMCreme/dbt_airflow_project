@@ -59,3 +59,4 @@ This project simulates a data pipeline. Data is crawled from an online shop's we
 * Deployment with Docker
 The project will be deployed to a Production environment with docker. 
 
+sudo apt-get install ca-certificates curl gnupg lsb-release
