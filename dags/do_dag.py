@@ -7,7 +7,8 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.sensors.filesystem import FileSensor
 from airflow.models import Variable
-from do_read import read_from_s3
+# from do_read import read_from_s3
+from do_read import ReadFromS3
 
 
 # Define the default arguments for the DAG
@@ -33,16 +34,18 @@ dag = DAG(
 
 download_file = PythonOperator(
     task_id="download_s3_file",
-    python_callable=read_from_s3,
+    python_callable=ReadFromS3().clean_up_file,
     op_args=[
-        "/tmp/billbox_account_20220713.csv",
         "backups/billbox_account_20220713.json",
+        "/tmp/account_20220713.csv",
     ],
     dag=dag,
 )
 
 local_file_sensor = FileSensor(
-    task_id="sensing_local_file", filepath=Variable.get("do_download_file"), dag=dag
+    task_id="sensing_local_file",
+    filepath=Variable.get("do_download_file"),
+    dag=dag
 )
 
 
@@ -57,19 +60,21 @@ creating_table = PostgresOperator(
 def copy_into_postgres():
     postgre_hook = PostgresHook(postgres_conn_id="postgres_default")
     postgre_hook.copy_expert(
-        """COPY do_billbox.public.billbox_accounts FROM stdin WITH CSV HEADER
+        """COPY airflow.public.billbox_accounts FROM stdin WITH CSV HEADER
             DELIMITER as ',' """,
         Variable.get("do_download_file"),
     )
 
 
 copy_local_to_postgres = PythonOperator(
-    task_id="copy_from_s3_into_postgres", python_callable=copy_into_postgres, dag=dag
+    task_id="copy_from_s3_into_postgres",
+    python_callable=copy_into_postgres,
+    dag=dag
 )
 
 dbt_operator = BashOperator(
     task_id="dbt_task_in_airflow",
-    bash_command="cd /opt/airflow/dbtproj && dbt deps && dbt run --profiles-dir .",
+    bash_command="cd /opt/airflow/airflowproj && dbt deps && dbt run --profiles-dir .",
     dag=dag,
 )
 
