@@ -1,6 +1,7 @@
 with account as (
     SELECT 
         _id,
+        _class,
         name
         date,
         description,

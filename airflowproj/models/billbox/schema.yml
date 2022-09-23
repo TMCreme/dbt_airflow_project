@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: billbox
     description: "Transformation for the table "
-    database: do_billbox
+    database: airflow
     schema: public 
 
     tables: 
