@@ -12,3 +12,7 @@ snowflake_table.py
 *.csv
 test_script.py
 create_script.sql
+*.log
+dags/test_do_read.py
+tests/__pycache__
+.env
