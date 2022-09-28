@@ -27,7 +27,7 @@ This project simulates a data pipeline. The data used for starting the project h
     b. `file(path)` = `connection_id`: fs_default, `extra_args`:`{"path":"/"}`
     
     c. `PostgreSQL` = `connection_id`: postgres_default, `host`: host.docker.internal, `schema`: airflow, `login`: airflow, `password`:airflow, `port`:5433    
-6. Edit the `variables.json` file with the correct AWS credentials and import the `variables.json` into the Airflow variables
+6. Import the `variables.json` into the Airflow variables
 7. Run the dag `do_pipeline_test`. i.e. Visit the Airflow UI and run the dag that has been created. This can be scheduled to run anytime of the day or how frequent you want. That is the point of Airflow. 
 8. PostgreSQL database is exposed on `localhost:5433` with username `airflow` and password `airflow`. The dag run should create a table named `account`. Connect with any PostgreSQL client to see the data output and run queries. 
 
