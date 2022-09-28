@@ -1,9 +1,10 @@
+from typing import TextIO
 import pandas as pd
 import logging
-import boto3
-from airflow.models import Variable
 
 
+# I have removed all airflow operations from here
+# Any airflow operation will be handled in the dag
 class ReadFromS3:
     def __init__(self) -> None:
         logging.basicConfig(
@@ -14,86 +15,62 @@ class ReadFromS3:
             level=logging.DEBUG
         )
         self.logger = logging.getLogger("initialization")
-        self.access_key = Variable.get("do_aws_credntials_access_token")
-        self.secret_key = Variable.get("do_aws_credntials_secret_token")
-        self.logger.debug("Getting the S3 connection")
-        self.s3 = boto3.client(
-            "s3",
-            aws_access_key_id=self.access_key,
-            aws_secret_access_key=self.secret_key
-        )
-        self.logger.debug("Connected to S3 {}".format(self.s3))
-
-    # This function reads the file from s3
-    def read_file_object(self, s3_file: str) -> pd.DataFrame:
-        # call the s3 connection function above
-        s3 = self.s3
-        self.logger = logging.getLogger("read_file_object")
-        self.logger.debug("Getting bucket name from Airflow variables")
-        # Retrieving the bucket name from Airflow variables
-        bucket_name = Variable.get("do_bucket_name")
-        self.logger.debug("Reading the S3 object")
-        # Reading the s3 object
-        response = s3.get_object(
-            Bucket=bucket_name,
-            Key=s3_file)
-        self.logger.debug("Response object: {}".format(response))
-        # Reading the body with data into pandas df
-        df = pd.read_json(response.get("Body"), lines=True)
-        self.logger.debug(
-            "Read data from into dataframe: {}".format(df.head())
-            )
-        return df
+        # self.clean_up_file()
 
     # Cleaning the file to have strings
-    def clean_up_file(self, s3_file: str, local_file: str):
-        # calling the read function
-        df = self.read_file_object(s3_file=s3_file)
+    def clean_up_file(self, s3_file: TextIO):
+        # Read the file data into a dataframe
+        self.df = pd.read_json(s3_file, lines=True)
         self.logger = logging.getLogger("clean_up_file")
         self.logger.debug("Cleaning up the dataframe objectId")
         # stripping off the objectID in mongodb object to
         # make it a string
-        df["_id"] = df["_id"].astype(str).str.lstrip("{'$oid': '")
-        df["_id"] = df["_id"].astype(str).str.strip("'}")
+        self.df["_id"] = self.df["_id"].astype(str).str.lstrip("{'$oid': '")
+        self.df["_id"] = self.df["_id"].astype(str).str.strip("'}")
 
         # {'$date': '2015-05-07T16:08:00.201Z'}
         # Replacing the empty date fields with a None because
         # transforming nan in SQL was a problem
         self.logger.debug("Cleaning up the dataframe date")
-        df["dateModified"] = df["dateModified"].fillna("")
-        df["dateCreated"] = df["dateCreated"].fillna("")
+        self.df["dateModified"] = self.df["dateModified"].fillna("")
+        self.df["dateCreated"] = self.df["dateCreated"].fillna("")
 
         # Stripping the date objects to have only the date string
         # Mongodb stores the datetime object in a unique format
-        df["dateCreated"] = (
-            df["dateCreated"].astype(str).str.lstrip("{'$date': '")
+        self.df["dateCreated"] = (
+            self.df["dateCreated"].astype(str).str.lstrip("{'$date': '")
         )
-        df["dateCreated"] = df[
+        self.df["dateCreated"] = self.df[
             "dateCreated"
             ].astype(str).str.strip("'}")
 
-        df["dateModified"] = (
-            df["dateModified"].astype(str).str.lstrip("{'$date': '")
+        self.df["dateModified"] = (
+            self.df["dateModified"].astype(str).str.lstrip("{'$date': '")
         )
-        df["dateModified"] = df[
+        self.df["dateModified"] = self.df[
             "dateModified"
             ].astype(str).str.strip("'}")
         # calling the save to csv function to convert df to csv
         self.logger.debug("Cleaning up completed successfully")
-        self.save_to_csv(df=df, local_file=local_file)
-        # return
+        return self.df
 
     # Converting df to CSV and setting the variables in airflow
-    def save_to_csv(self, df: pd.DataFrame, local_file: str) -> None:
+    def save_to_csv(self, s3_file: TextIO, local_file: TextIO):
+        self.clean_up_file(s3_file)
+        print("Initializing the save to csv")
         self.logger = logging.getLogger("save_to_csv")
         # Converting the dataframe to csv
         self.logger.debug("Converting the datafrome to CSV")
-        df.to_csv(local_file, index=False)
+        self.df.to_csv(local_file, index=False)
+        print("Saved to csv")
         # Save CSV filename into a variable
-        Variable.set("do_download_file", local_file)
+        data_dict = {}
+        data_dict["do_download_file"] = local_file
+        # Variable.set("do_download_file", local_file)
         self.logger.debug("CSV Filename: {}".format(local_file))
         # Read the csv headers into a list
         self.logger.debug("Read the CSV headers into a list")
+        print("read from csv")
         df_header = pd.read_csv(local_file, nrows=0).columns.tolist()
         self.logger.debug("Header List: {}".format(df_header))
         # Create an SQL CREATE statement as a string variable
@@ -112,14 +89,13 @@ class ReadFromS3:
         self.logger.debug("Convert the list of columns into a string")
         creation_script = "".join(str(x) + "," for x in df_header_edit)
         self.logger.debug("CREATE TABLE Columns: {}".format(creation_script))
-        # Add the CREATE keyword and save it in an Airflow var
+        # Add the CREATE keyword and save it in a dictonary
         self.logger.debug("Add the CREATE keyword and save in a var")
-        Variable.set(
-            "table_create_sql",
-            """CREATE TABLE IF NOT EXISTS
+        data_dict["table_create_sql"] = """CREATE TABLE IF NOT EXISTS
             airflow.public.billbox_accounts ( {} )""".format(
                 creation_script[:-1]
-            ),
-        )
+            )
         self.logger.debug("File handling complete. ")
-        return None
+        # Return a data so the operator can access and save as variable
+        # Data includes CREATE TABLE STATEMENT and local filename
+        return data_dict
