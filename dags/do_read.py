@@ -18,7 +18,7 @@ class ReadFromS3:
         # self.clean_up_file()
 
     # Cleaning the file to have strings
-    def clean_up_file(self, s3_file: TextIO):
+    def clean_up_file(self, s3_file: TextIO) -> pd.DataFrame:
         # Read the file data into a dataframe
         self.df = pd.read_json(s3_file, lines=True)
         self.logger = logging.getLogger("clean_up_file")
@@ -55,7 +55,7 @@ class ReadFromS3:
         return self.df
 
     # Converting df to CSV and setting the variables in airflow
-    def save_to_csv(self, s3_file: TextIO, local_file: TextIO):
+    def save_to_csv(self, s3_file: TextIO, local_file: TextIO) -> dict:
         self.clean_up_file(s3_file)
         print("Initializing the save to csv")
         self.logger = logging.getLogger("save_to_csv")
