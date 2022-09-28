@@ -38,7 +38,6 @@ def test_date_created(clean_file_mock):
         clean_file_mock
     )
     assert "dateCreated" in cleaning.keys()
-    assert type(cleaning) == pd.DataFrame
 
 
 # Testing the existence of the fields that needed transformation
