@@ -3,11 +3,11 @@ airflowproj:
   outputs:
     dev:
       database: airflow
-      password: airflow
+      password: '12345'
       schema: public
       threads: 5
       type: postgres
-      user: airflow
+      user: postgres
       host: host.docker.internal
-      port: 5433
+      port: 5432
   

@@ -2,8 +2,7 @@ with account as (
     SELECT 
         _id,
         _class,
-        name
-        date,
+        name,
         description,
         logoUrl,
         CAST(isLocked AS boolean) as isLocked,
