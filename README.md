@@ -1,4 +1,4 @@
-# Data Pipeline using Apache Airflow, DBT and Snowflake 
+# Data Pipeline using Apache Airflow, DBT and PostgreSQL 
 
 ## Technologies
 * Python 
